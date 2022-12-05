@@ -13,13 +13,11 @@ telegram_id = "444879086"
 bot = telegram.Bot(token = telegram_token)
 
 url_array = [
-            'https://api-ticketfront.interpark.com/v1/goods/22005895/playSeq/PlaySeq/155/REMAINSEAT',
-            'https://api-ticketfront.interpark.com/v1/goods/22011899/playSeq/PlaySeq/060/REMAINSEAT'
+            'https://api-ticketfront.interpark.com/v1/goods/22011899/playSeq/PlaySeq/078%2C079/REMAINSEAT'
              ]
 
 data_array = [
-            '킨텍스 오토캠핑장 2022-11-05 https://tickets.interpark.com/goods/22005895',
-            '노을진캠핑장 2022-11-05 https://tickets.interpark.com/goods/22011899'
+            '노을진캠핑장 2022-11-10 https://tickets.interpark.com/goods/22011899'
             ]
 
 print("[" + "interpark 예약" + "] ");
