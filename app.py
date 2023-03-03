@@ -47,7 +47,7 @@ def message1():
                     cnt += 1
             print(time.strftime('%Y-%m-%d %H:%M:%S'), ":", cnt)
             # print("cnt : ", message)
-            if cnt >= 0:
+            if cnt > 0:
                 asyncio.run(bot_send(message)) 
                 # bot.sendMessage(chat_id=telegram_id, text=message)
                 # bot_sst.sendMessage(chat_id=telegram_id_sst, text=message)
