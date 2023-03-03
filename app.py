@@ -6,11 +6,14 @@ import time
 from datetime import datetime
 import time
 from pprint import pprint
+import asyncio
 
 # Telegram
-telegram_token = "5128692345:AAHkO-3JZ9tZYP2hrS5UAlnYCrO0PiO09_A"
-telegram_id = "444879086"
-bot = telegram.Bot(token = telegram_token)
+async def bot_send(msg):
+    telegram_token = "5128692345:AAHkO-3JZ9tZYP2hrS5UAlnYCrO0PiO09_A"
+    telegram_id = "444879086"
+    bot = telegram.Bot(token = telegram_token)
+    await bot.sendMessage(chat_id=telegram_id, text=msg)
 
 url_array = [
             'https://api-ticketfront.interpark.com/v1/goods/22005895/playSeq/PlaySeq/248/REMAINSEAT',
@@ -44,8 +47,9 @@ def message1():
                     cnt += 1
             print(time.strftime('%Y-%m-%d %H:%M:%S'), ":", cnt)
             # print("cnt : ", message)
-            if cnt > 0:
-                bot.sendMessage(chat_id=telegram_id, text=message)
+            if cnt >= 0:
+                asyncio.run(bot_send(message)) 
+                # bot.sendMessage(chat_id=telegram_id, text=message)
                 # bot_sst.sendMessage(chat_id=telegram_id_sst, text=message)
         else :
             print(response.status_code)
