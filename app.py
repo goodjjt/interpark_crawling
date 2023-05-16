@@ -16,13 +16,15 @@ async def bot_send(msg):
     await bot.sendMessage(chat_id=telegram_id, text=msg)
 
 url_array = [
-            'https://api-ticketfront.interpark.com/v1/goods/22005895/playSeq/PlaySeq/248/REMAINSEAT',
-            'https://api-ticketfront.interpark.com/v1/goods/21012652/playSeq/PlaySeq/427/REMAINSEAT'
+            'https://api-ticketfront.interpark.com/v1/goods/22002652/playSeq/PlaySeq/256/REMAINSEAT',
+            'https://api-ticketfront.interpark.com/v1/goods/22011899/playSeq/PlaySeq/143/REMAINSEAT',
+            'https://api-ticketfront.interpark.com/v1/goods/22005895/playSeq/PlaySeq/317/REMAINSEAT',
              ]
 
 data_array = [
-            '킨텍스 캠핑장 2023-03-04 https://tickets.interpark.com/goods/22005895',
-            '천왕산 캠핑장 2023-03-04 https://tickets.interpark.com/goods/21012652'
+            '노을 캠핑장 2023-05-19 https://tickets.interpark.com/goods/22002652',
+            '노을진 캠핑장 2023-05-19 https://tickets.interpark.com/goods/22011899',
+            '킨텍스 캠핑장 2023-05-19 https://tickets.interpark.com/goods/22005895'
             ]
 
 print("[" + "interpark 예약" + "] ");
