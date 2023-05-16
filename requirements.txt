@@ -2,3 +2,4 @@ python-telegram-bot
 requests
 urllib3
 schedule
+psycopg2
