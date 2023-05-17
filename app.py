@@ -7,7 +7,7 @@ from datetime import datetime
 import time
 from pprint import pprint
 import asyncio
-import psycopg2
+import psycopg2.extras
 
 # https 처리 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -26,20 +26,20 @@ conn = psycopg2.connect(database="postgres",
                         user="postgres",
                         password="wjswnsxo18!",
                         port="25432")
-cursor = conn.cursor()
-cursor.execute("SELECT * FROM camping_booking_info order by id")
+cursor = conn.cursor(cursor_factory = psycopg2.extras.RealDictCursor)
+cursor.execute("select * from camping_booking_info where 1 = 1 order by id")
 records = cursor.fetchall()
 
-data_array = []
-url_array = []
-site_gubun_array = []
-payload_array = []
+# data_array = []
+# url_array = []
+# site_gubun_array = []
+# payload_array = []
 
-for row in records:
-    data_array.append(row[1] + " " + row[2])
-    url_array.append(row[3])
-    site_gubun_array.append(row[7])
-    payload_array.append(row[9])
+# for row in records:
+#     data_array.append(row['camping_site_name'] + " " + row['site_url'])
+#     url_array.append(row['request_url'])
+#     site_gubun_array.append(row['site_gubun'])
+#     payload_array.append(row['payload'])
 
 # url_array = [
 #             'https://api-ticketfront.interpark.com/v1/goods/22002652/playSeq/PlaySeq/256/REMAINSEAT',
@@ -56,47 +56,101 @@ for row in records:
 #             ]
 
 print("[" + "캠핑 예약 작업 시작" + "] ")
-for index, value in enumerate(data_array):
-    print(value)
-    print(site_gubun_array[index])
-    print(payload_array[index])
+for index, value in enumerate(records):
+    print(value['camping_site_name'] + " " + value['site_url'])
 
 def crawling():
-    for index, value in enumerate(url_array):
-        # 인터파크 티켓
-        if site_gubun_array[index] == "interpark":
-            response = requests.get(value)
-            cnt = 0
-            message = "[" + data_array[index] + "]" + '\n'
-            if response.status_code == 200:
-                jsonData = response.json()
+    for index, value in enumerate(records):
+        if value['use_yn'] == "Y":
+            # 인터파크 티켓
+            if value['site_gubun'] == "interpark":
+                response = requests.get(value['request_url'])
+                cnt = 0
+                message = "[" + value['camping_site_name'] + " " + value['site_url'] + "]" + '\n'
+                if response.status_code == 200:
+                    jsonData = response.json()
 
-                for data in jsonData.get("data").get("remainSeat"):
-                    message = message + data.get("seatGradeName") +  " : " + str(data.get("remainCnt")) + '\n'
-                    if data.get("remainCnt") > 0:
-                        cnt += 1
+                    for data in jsonData.get("data").get("remainSeat"):
+                        message = message + data.get("seatGradeName") +  " : " + str(data.get("remainCnt")) + '\n'
+                        if data.get("remainCnt") > 0:
+                            cnt += 1
 
-                print(time.strftime('%Y-%m-%d %H:%M:%S'), ":", cnt)
-                if cnt > 0:
-                    asyncio.run(bot_send(message))          
-            else :
-                print(response.status_code)
-        # 이포보 오토 캠핑장         
-        if site_gubun_array[index] == "mirihae":
-            response = requests.post(value, data=payload_array[index], verify=False)
-            cnt = 0
-            message = "[" + data_array[index] + "]" + '\n'
-            if response.status_code == 200:
-                jsonData = response.json()
-                for data in jsonData.get('pinCategoryList')[0].get('pinList'):
-                    if data.get("reserveCnt") == 0:
-                        cnt += 1
-                        message = message + data.get("itemNm") + ', '
-                print(time.strftime('%Y-%m-%d %H:%M:%S'), ":", cnt)
-                if cnt > 0:
-                    asyncio.run(bot_send(message))    
-            else :
-                print(response.status_code)        
+                    print(time.strftime('%Y-%m-%d %H:%M:%S'), ":", cnt, ":", value['site_gubun'])
+                    if cnt > 0:
+                        asyncio.run(bot_send(message))          
+                else :
+                    print(response.status_code)
+            # 이포보 오토 캠핑장         
+            if value['site_gubun'] == "mirihae":
+                response = requests.post(value['request_url'], data=value['payload'], verify=False)
+                cnt = 0
+                message = "[" + value['camping_site_name'] + " " + value['site_url'] + "]" + '\n'
+                if response.status_code == 200:
+                    jsonData = response.json()
+                
+                    for data in jsonData.get('pinCategoryList')[0].get('pinList'):
+                        if data.get("reserveCnt") == 0:
+                            cnt += 1
+                            message = message + data.get("itemNm") + ', '
+                    
+                    print(time.strftime('%Y-%m-%d %H:%M:%S'), ":", cnt, ":", value['site_gubun'])
+                    if cnt > 0:
+                        asyncio.run(bot_send(message))    
+                else :
+                    print(response.status_code)     
+            # 난지 캠핑장         
+            if value['site_gubun'] == "yeyak.seoul":
+                response = requests.post(value['request_url'], data=value['payload'], verify=False, headers={'User-Agent':'Mozilla/5.0'})
+                cnt = 0
+                message = "[" + value['camping_site_name'] + " " + value['site_url'] + "]" + '\n'
+                if response.status_code == 200:
+                    jsonData = response.json()
+
+                    for data in jsonData.get('resultListDays'):
+                        if data.get("SVC_RESVE_CODE") == "Y":
+                            if data.get("YMD") == "20230304":
+                                cnt += 1
+                                message = message + data.get("YMD")
+
+                    print(time.strftime('%Y-%m-%d %H:%M:%S'), ":", cnt, ":", value['site_gubun'])
+                    if cnt > 0:
+                        asyncio.run(bot_send(message))    
+                else :
+                    print(response.status_code)      
+            # 임진각 평화누리 캠핑장         
+            if value['site_gubun'] == "imjingakcamping":
+                response = requests.post(value['request_url'])
+                cnt = 0
+                message = "[" + value['camping_site_name'] + " " + value['site_url'] + "]" + '\n'
+                if response.status_code == 200:
+                    jsonData = response.json()
+
+                    if jsonData.get("result").items() is not None:
+                        for key, item in jsonData.get("result").items():
+                            if item == "0":
+                                # 평화캠핑존
+                                if key.startswith("ph"):
+                                    # print("평화캠핑존", " : ", key, " : ", value)
+                                    message = message + "평화캠핑존_" + key[-2:] + " : " + "Yes" + '\n'
+                                    cnt += 1
+                                # 힐링캠핑존
+                                if key.startswith("hl"):
+                                    message = message + "힐링캠핑존_" + key[-2:] + " : " + "Yes" + '\n'
+                                    cnt += 1
+                                # 누리캠핑존
+                                if key.startswith("nr"):
+                                    message = message + "누리캠핑존_" + key[-2:] + " : " + "Yes" + '\n'
+                                    cnt += 1
+                                # 에코캠핑존
+                                if key.startswith("ec"):
+                                    message = message + "에코캠핑존_" + key[-2:] + " : " + "Yes" + '\n'
+                                    cnt += 1
+                                
+                    print(time.strftime('%Y-%m-%d %H:%M:%S'), ":", cnt, ":", value['site_gubun'])
+                    if cnt > 0:
+                        asyncio.run(bot_send(message))    
+                else :
+                    print(response.status_code)      
 
 # step3.실행 주기 설정
 schedule.every(10).seconds.do(crawling)
