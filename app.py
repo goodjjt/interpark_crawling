@@ -31,6 +31,11 @@ cursor = conn.cursor(cursor_factory = psycopg2.extras.RealDictCursor)
 cursor.execute("select * from camping_booking_info where 1 = 1 order by id")
 records = cursor.fetchall()
 
+print("[" + "캠핑 예약 작업 시작" + "] ")
+for index, value in enumerate(records):
+    if value['use_yn'] == "Y":
+        print(value['camping_site_name'] + " " + value['site_url'])
+
 # data_array = []
 # url_array = []
 # site_gubun_array = []
@@ -56,13 +61,33 @@ records = cursor.fetchall()
 #             '천왕산 캠핑장 2023-05-19 https://tickets.interpark.com/goods/21012652'
 #             ]
 
-print("[" + "캠핑 예약 작업 시작" + "] ")
-for index, value in enumerate(records):
-    print(value['camping_site_name'] + " " + value['site_url'])
+
 
 def crawling():
+    cursor.execute("select * from camping_booking_info where 1 = 1 order by id")
+    records = cursor.fetchall()
     for index, value in enumerate(records):
         if value['use_yn'] == "Y":
+            # 맑음터공원캠핑장
+            # if value['site_gubun'] == "forest.maketicket":
+            #     response = requests.get(value['request_url'], data=value['payload'])
+            #     cnt = 0
+            #     message = "[" + value['camping_site_name'] + " " + value['site_url'] + "]" + '\n'
+            #     if response.status_code == 200:
+            #         htmlData = response.text
+            #         soup = BeautifulSoup(htmlData, 'html.parser')
+            #         array_temp = ['A', 'B', 'C', 'D', 'E']
+            #         for data in array_temp:
+            #             soup.find_all("button", {"value":"A:2023-06-08"})
+            #             message = message + data.get("name") +  " : " + data.get("isAvailable") + '\n'
+            #             if data.get("isAvailable") == "True":
+            #                 cnt += 1
+
+            #         print(time.strftime('%Y-%m-%d %H:%M:%S'), ":", cnt, ":", value['camping_site_name'])
+            #         if cnt > 0:
+            #             asyncio.run(bot_send(message))          
+            #     else :
+            #         print(response.status_code)
             # 연곡 솔향기
             if value['site_gubun'] == "camping.gtdc":
                 response = requests.get(value['request_url'], data=value['payload'],  headers=value['headers'])
@@ -78,25 +103,25 @@ def crawling():
                         if data.get("isAvailable") == "True":
                             cnt += 1
 
-                    print(time.strftime('%Y-%m-%d %H:%M:%S'), ":", cnt, ":", value['site_gubun'])
+                    print(time.strftime('%Y-%m-%d %H:%M:%S'), ":", cnt, ":", value['camping_site_name'])
                     if cnt > 0:
                         asyncio.run(bot_send(message))          
                 else :
                     print(response.status_code)
             # 캠핏
             if value['site_gubun'] == "camfit":
-                response = requests.get(value['request_url'], data=value['payload'],  headers=value['headers'])
+                response = requests.get(value['request_url'], data=value['payload'], headers={'User-Agent':'Mozilla/5.0', 'Origin': 'www.camfit.co.kr'})
                 cnt = 0
                 message = "[" + value['camping_site_name'] + " " + value['site_url'] + "]" + '\n'
                 if response.status_code == 200:
                     jsonData = response.json()
-
+            
                     for data in jsonData:
-                        message = message + data.get("name") +  " : " + data.get("isAvailable") + '\n'
-                        if data.get("isAvailable") == "True":
+                        message = message + (data.get("name") +  " : " + str(data.get("isAvailable")) + '\n')
+                        if data.get("isAvailable") == True:
                             cnt += 1
 
-                    print(time.strftime('%Y-%m-%d %H:%M:%S'), ":", cnt, ":", value['site_gubun'])
+                    print(time.strftime('%Y-%m-%d %H:%M:%S'), ":", cnt, ":", value['camping_site_name'])
                     if cnt > 0:
                         asyncio.run(bot_send(message))          
                 else :
@@ -114,7 +139,7 @@ def crawling():
                         if data.get("remainCnt") > 0:
                             cnt += 1
 
-                    print(time.strftime('%Y-%m-%d %H:%M:%S'), ":", cnt, ":", value['site_gubun'])
+                    print(time.strftime('%Y-%m-%d %H:%M:%S'), ":", cnt, ":", value['camping_site_name'])
                     if cnt > 0:
                         asyncio.run(bot_send(message))          
                 else :
@@ -132,7 +157,7 @@ def crawling():
                             cnt += 1
                             message = message + data.get("itemNm") + ', '
                     
-                    print(time.strftime('%Y-%m-%d %H:%M:%S'), ":", cnt, ":", value['site_gubun'])
+                    print(time.strftime('%Y-%m-%d %H:%M:%S'), ":", cnt, ":", value['camping_site_name'])
                     if cnt > 0:
                         asyncio.run(bot_send(message))    
                 else :
@@ -151,7 +176,7 @@ def crawling():
                                 cnt += 1
                                 message = message + data.get("YMD")
 
-                    print(time.strftime('%Y-%m-%d %H:%M:%S'), ":", cnt, ":", value['site_gubun'])
+                    print(time.strftime('%Y-%m-%d %H:%M:%S'), ":", cnt, ":", value['camping_site_name'])
                     if cnt > 0:
                         asyncio.run(bot_send(message))    
                 else :
@@ -185,7 +210,7 @@ def crawling():
                                     message = message + "에코캠핑존_" + key[-2:] + " : " + "Yes" + '\n'
                                     cnt += 1
                                 
-                    print(time.strftime('%Y-%m-%d %H:%M:%S'), ":", cnt, ":", value['site_gubun'])
+                    print(time.strftime('%Y-%m-%d %H:%M:%S'), ":", cnt, ":", value['camping_site_name'])
                     if cnt > 0:
                         asyncio.run(bot_send(message))    
                 else :
