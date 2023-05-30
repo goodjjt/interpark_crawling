@@ -3,4 +3,4 @@ requests
 urllib3
 schedule
 psycopg2-binary
-BeautifulSoup
+beautifulsoup4
