@@ -8,6 +8,7 @@ import time
 from pprint import pprint
 import asyncio
 import psycopg2.extras
+from bs4 import BeautifulSoup
 
 # https 처리 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -62,6 +63,44 @@ for index, value in enumerate(records):
 def crawling():
     for index, value in enumerate(records):
         if value['use_yn'] == "Y":
+            # 연곡 솔향기
+            if value['site_gubun'] == "camping.gtdc":
+                response = requests.get(value['request_url'], data=value['payload'],  headers=value['headers'])
+                cnt = 0
+                message = "[" + value['camping_site_name'] + " " + value['site_url'] + "]" + '\n'
+                if response.status_code == 200:
+                    htmlData = response.text
+                    soup = BeautifulSoup(htmlData, 'html.parser')
+                    array_temp = ['A', 'B', 'C', 'D', 'E']
+                    for data in array_temp:
+                        soup.find_all("button", {"value":"A:2023-06-08"})
+                        message = message + data.get("name") +  " : " + data.get("isAvailable") + '\n'
+                        if data.get("isAvailable") == "True":
+                            cnt += 1
+
+                    print(time.strftime('%Y-%m-%d %H:%M:%S'), ":", cnt, ":", value['site_gubun'])
+                    if cnt > 0:
+                        asyncio.run(bot_send(message))          
+                else :
+                    print(response.status_code)
+            # 캠핏
+            if value['site_gubun'] == "camfit":
+                response = requests.get(value['request_url'], data=value['payload'],  headers=value['headers'])
+                cnt = 0
+                message = "[" + value['camping_site_name'] + " " + value['site_url'] + "]" + '\n'
+                if response.status_code == 200:
+                    jsonData = response.json()
+
+                    for data in jsonData:
+                        message = message + data.get("name") +  " : " + data.get("isAvailable") + '\n'
+                        if data.get("isAvailable") == "True":
+                            cnt += 1
+
+                    print(time.strftime('%Y-%m-%d %H:%M:%S'), ":", cnt, ":", value['site_gubun'])
+                    if cnt > 0:
+                        asyncio.run(bot_send(message))          
+                else :
+                    print(response.status_code)
             # 인터파크 티켓
             if value['site_gubun'] == "interpark":
                 response = requests.get(value['request_url'])
