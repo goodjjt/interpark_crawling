@@ -75,14 +75,14 @@ def crawling():
             #     message = "[" + value['camping_site_name'] + " " + value['site_url'] + "]" + '\n'
             #     if response.status_code == 200:
             #         htmlData = response.text
-            #         soup = BeautifulSoup(htmlData, 'html.parser')
+            #         soup = BeautifulData, 'html.parser')
             #         array_temp = ['A', 'B', 'C', 'D', 'E']
             #         for data in array_temp:
             #             soup.find_all("button", {"value":"A:2023-06-08"})
             #             message = message + data.get("name") +  " : " + data.get("isAvailable") + '\n'
             #             if data.get("isAvailable") == "True":
             #                 cnt += 1
-
+ 
             #         print(time.strftime('%Y-%m-%d %H:%M:%S'), ":", cnt, ":", value['camping_site_name'])
             #         if cnt > 0:
             #             asyncio.run(bot_send(message))          
@@ -128,7 +128,7 @@ def crawling():
                     print(response.status_code)
             # 인터파크 티켓
             if value['site_gubun'] == "interpark":
-                response = requests.get(value['request_url'])
+                response = requests.get(value['request_url'], headers={'User-Agent':'Mozilla/5.0'})
                 cnt = 0
                 message = "[" + value['camping_site_name'] + " " + value['site_url'] + "]" + '\n'
                 if response.status_code == 200:
