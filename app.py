@@ -20,6 +20,13 @@ async def bot_send(msg):
     bot = telegram.Bot(token = telegram_token)
     await bot.sendMessage(chat_id=telegram_id, text=msg)
 
+# Telegram
+async def bot_send_eo(msg):
+    telegram_token = "6435631419:AAHlNw7alHuvilFa4rQmSH27teXUZRxWq_E"
+    telegram_id = "6070929358"
+    bot = telegram.Bot(token = telegram_token)
+    await bot.sendMessage(chat_id=telegram_id, text=msg)
+
 
 # postgresSql
 conn = psycopg2.connect(database="postgres",
@@ -141,7 +148,8 @@ def crawling():
 
                     print(time.strftime('%Y-%m-%d %H:%M:%S'), ":", cnt, ":", value['camping_site_name'])
                     if cnt > 0:
-                        asyncio.run(bot_send(message))          
+                        asyncio.run(bot_send(message)) 
+                        asyncio.run(bot_send_eo(message))         
                 else :
                     print(response.status_code)
             # 이포보 오토 캠핑장         
