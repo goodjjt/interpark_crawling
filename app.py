@@ -222,6 +222,7 @@ def crawling():
                     print(time.strftime('%Y-%m-%d %H:%M:%S'), ":", cnt, ":", value['camping_site_name'])
                     if cnt > 0:
                         asyncio.run(bot_send(message))    
+                        asyncio.run(bot_send_eo(message))   
                 else :
                     print(response.status_code)      
 
